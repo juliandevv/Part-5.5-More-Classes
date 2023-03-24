@@ -8,6 +8,8 @@ using System.Media;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Reflection;
+using System.ComponentModel;
 
 namespace Part_5._5_More_Classes
 {
@@ -27,7 +29,7 @@ namespace Part_5._5_More_Classes
             string title = " WELCOME TO DICE MANIA! ";
             Console.WriteLine(bar);
             Console.SetCursorPosition((Console.WindowWidth / 2) - (title.Length / 2), Console.CursorTop - 2);
-            animateString(title);
+            animateString(title, 30);
 
             //main command prompt loop
             bool exit = false;
@@ -47,7 +49,9 @@ namespace Part_5._5_More_Classes
             List<string> commandParts = commandString.Split(' ').ToList();
             string command = commandParts.First();
             List<string> arguments = commandParts.Skip(1).ToList();
-            Die die = new Die(6, 1);
+            List<Die> dice = new List<Die>();
+            dice.Add(new Die(6, 1));
+            dice.Add(new Die(6, 1));
 
             //evaluate command
             switch (command){
@@ -61,7 +65,7 @@ namespace Part_5._5_More_Classes
                     break;
                 //main game 
                 case "play":
-                    play(die);
+                    play(dice);
                     break;
                 //exit condition
                 case "exit":
@@ -73,16 +77,17 @@ namespace Part_5._5_More_Classes
             return false;
         }
 
-        static void play(Die die)
+        static void play(List<Die> dice)
         {
             //initialize gameplay vars
             Random genertaor = new Random();
             Bet betMode = Bet.doubles;
-            Bet betResult = Bet.doubles;
+            List<Bet> diceResults = new List<Bet>();
             Console.ForegroundColor = ConsoleColor.Green;
             int balance = 100;
             int bet = 0;
-            int roll1 = 0, roll2 = 0;
+            int diceSum;
+            bool win = false;
 
             //prompt betting choices
             animateString($"You currently have: {balance.ToString("C")}");
@@ -92,7 +97,7 @@ namespace Part_5._5_More_Classes
 
             foreach(string line in lines)
             {
-                animateString(line);
+                animateString(line, 2);
             }
 
             ConsoleKey option = Console.ReadKey().Key;
@@ -130,18 +135,48 @@ namespace Part_5._5_More_Classes
             {
                 if (Console.ReadKey().Key == ConsoleKey.Spacebar)
                 {
-                    animateDice(die, genertaor, roll1, roll2);
+                    animateDice(dice, genertaor);
                     break;
                 }
             }
 
-            //final roll
-            roll1 = die.RollDie();
-            roll2 = die.RollDie();
-            if (roll1 == roll2)
+            //win conditions
+            diceSum = (dice[0].Roll + dice[1].Roll);
+            if (dice[0].Roll == dice[1].Roll)
             {
-                betResult = Bet.doubles;
+                if (diceSum % 2 == 0)
+                {
+                    diceResults.Add(Bet.evenSum);
+                }
+
+                diceResults.Add(Bet.doubles);
             }
+            else
+            {
+                if (diceSum % 2 == 1)
+                {
+                    diceResults.Add(Bet.oddSum);
+                }
+                diceResults.Add(Bet.oddSum);
+            }
+            
+            foreach (Bet result in diceResults)
+            {
+                if(result == betMode)
+                {
+                    win = true;
+                }
+            }
+
+            if (win)
+            {
+                animateString("You Win!!!");
+            }
+            else
+            {
+                animateString("You Lose!!!");
+            }
+
         }
 
         static int ParseResponse(int balance)
@@ -168,29 +203,21 @@ namespace Part_5._5_More_Classes
             }
         }
 
-        static void animateDice(Die die, Random generator, int roll1, int roll2)
+        static void animateDice(List<Die> dice, Random generator)
         {
             List<ConsoleColor> colors = new List<ConsoleColor>() { ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Blue, ConsoleColor.Cyan, ConsoleColor.Magenta};
             for (int i = 0; i < 20; i++)
             {
-                roll1 = die.RollDie();
-                roll2 = die.RollDie();
                 Console.ForegroundColor = colors[generator.Next(0, 5)];
-                drawDice(roll1, roll2);
+                foreach (var (die, j) in dice.Select((die, j) => (die, j)))
+                {
+                    die.RollDie();
+                    die.DrawFace(j * 13, j * (-7), die.Roll);
+                }
                 Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 7);
-                Thread.Sleep(100);
+                Thread.Sleep(30);
             }
-        }
-
-        static void drawDice(int roll1, int roll2)
-        {
-            Console.Write("\n ___________    ___________");
-            Console.Write("\n|~---------~|  |~---------~|");
-            Console.Write("\n|           |  |           |");
-            Console.Write($"\n|     {roll1}     |  |     {roll2}     |");
-            Console.Write("\n|           |  |           |");
-            Console.Write("\n|___________|  |___________|\n");
-
+            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop + 8);
         }
 
         static void animateString(string text)
@@ -199,6 +226,15 @@ namespace Part_5._5_More_Classes
             {
                 Console.Write(c.ToString());
                 Thread.Sleep(10);
+            }
+            Console.WriteLine();
+        }
+        static void animateString(string text, int speed)
+        {
+            foreach (char c in text)
+            {
+                Console.Write(c.ToString());
+                Thread.Sleep(speed);
             }
             Console.WriteLine();
         }

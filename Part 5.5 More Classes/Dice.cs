@@ -67,17 +67,21 @@ namespace Part_5._5_More_Classes
             return _roll;
         }
 
-        public void DrawFace()
+        public void DrawFace(int Xoffset, int Yoffset, int roll)
         {
-            string path = (@"Die Faces.txt");
-            string[] lines = File.ReadAllLines(path);
-
-            lines[3] = $" \\   {_roll}   /";
-
-            foreach(string line in lines)
-            {
-                Console.WriteLine(line);
-            }
+            Console.WriteLine();
+            Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop + Yoffset);
+            Console.WriteLine(" ___________");
+            Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
+            Console.WriteLine("|~---------~|");
+            Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
+            Console.WriteLine("|           |");
+            Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
+            Console.WriteLine($"|     {roll}     |");
+            Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
+            Console.WriteLine("|           |");
+            Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
+            Console.WriteLine("|___________|");
         }
     }
 }
