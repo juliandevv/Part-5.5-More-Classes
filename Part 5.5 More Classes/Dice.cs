@@ -67,7 +67,7 @@ namespace Part_5._5_More_Classes
             return _roll;
         }
 
-        public void DrawFace(int Xoffset, int Yoffset, int roll)
+        public void DrawFace(int Xoffset, int Yoffset)
         {
             Console.WriteLine();
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop + Yoffset);
@@ -77,7 +77,7 @@ namespace Part_5._5_More_Classes
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
             Console.WriteLine("|           |");
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
-            Console.WriteLine($"|     {roll}     |");
+            Console.WriteLine($"|     {_roll}     |");
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
             Console.WriteLine("|           |");
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);

@@ -30,6 +30,7 @@ namespace Part_5._5_More_Classes
             Console.WriteLine(bar);
             Console.SetCursorPosition((Console.WindowWidth / 2) - (title.Length / 2), Console.CursorTop - 2);
             animateString(title, 30);
+            int balance = 100;
 
             //main command prompt loop
             bool exit = false;
@@ -37,21 +38,22 @@ namespace Part_5._5_More_Classes
             {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write(">>>");
-                if(Parse(Console.ReadLine()) == true)
+                if(Parse(Console.ReadLine(), ref balance) == true)
                 {
                     exit = true;
                 }
             }
         }
-        static bool Parse(string commandString)
+        static bool Parse(string commandString, ref int balance)
         {
             //parse input to commands
             List<string> commandParts = commandString.Split(' ').ToList();
             string command = commandParts.First();
             List<string> arguments = commandParts.Skip(1).ToList();
+
             List<Die> dice = new List<Die>();
             dice.Add(new Die(6, 1));
-            dice.Add(new Die(6, 1));
+            dice.Add(new Die(9, 1));
 
             //evaluate command
             switch (command){
@@ -65,7 +67,10 @@ namespace Part_5._5_More_Classes
                     break;
                 //main game 
                 case "play":
-                    play(dice);
+                    play(dice, ref balance);
+                    break;
+                case "dice":
+                    config(commandParts, ref dice);
                     break;
                 //exit condition
                 case "exit":
@@ -77,15 +82,33 @@ namespace Part_5._5_More_Classes
             return false;
         }
 
-        static void play(List<Die> dice)
+        static void config(List<String> commandParts, ref List<Die> dice)
+        {
+            if (commandParts[0] == "configure")
+            {
+                if (int.TryParse(commandParts[1], out int sides))
+                {
+                    dice.Clear();
+                    dice.Add(new Die(sides, 1));
+                    dice.Add(new Die(sides, 1));
+                    Console.WriteLine($"Succesfully created {sides} sided dice");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid command. Usage: command [options] [parameters]");
+                }
+            }
+        }
+
+        static void play(List<Die> dice, ref int balance)
         {
             //initialize gameplay vars
             Random genertaor = new Random();
             Bet betMode = Bet.doubles;
             List<Bet> diceResults = new List<Bet>();
             Console.ForegroundColor = ConsoleColor.Green;
-            int balance = 100;
             int bet = 0;
+            int payout;
             int diceSum;
             bool win = false;
 
@@ -97,7 +120,7 @@ namespace Part_5._5_More_Classes
 
             foreach(string line in lines)
             {
-                animateString(line, 2);
+                Console.WriteLine(line);
             }
 
             ConsoleKey option = Console.ReadKey().Key;
@@ -110,11 +133,11 @@ namespace Part_5._5_More_Classes
                     break;
                 case ConsoleKey.C:
                     animateString("\nYou are betting on odd sum. If you win, you will get your bet.");
-                    betMode = Bet.notDoubles;
+                    betMode = Bet.oddSum;
                     break;
                 case ConsoleKey.B:
                     animateString("\nYou are betting on not doubles. If you win, you will get half your bet.");
-                    betMode = Bet.oddSum;
+                    betMode = Bet.notDoubles;
                     break;
                 case ConsoleKey.D:
                     animateString("\nYou are betting on even sum. If you win, you will get your bet.");
@@ -142,13 +165,10 @@ namespace Part_5._5_More_Classes
 
             //win conditions
             diceSum = (dice[0].Roll + dice[1].Roll);
+
             if (dice[0].Roll == dice[1].Roll)
             {
-                if (diceSum % 2 == 0)
-                {
-                    diceResults.Add(Bet.evenSum);
-                }
-
+                diceResults.Add(Bet.evenSum);
                 diceResults.Add(Bet.doubles);
             }
             else
@@ -157,7 +177,11 @@ namespace Part_5._5_More_Classes
                 {
                     diceResults.Add(Bet.oddSum);
                 }
-                diceResults.Add(Bet.oddSum);
+                else
+                {
+                    diceResults.Add(Bet.evenSum);
+                }
+                diceResults.Add(Bet.notDoubles);
             }
             
             foreach (Bet result in diceResults)
@@ -167,15 +191,32 @@ namespace Part_5._5_More_Classes
                     win = true;
                 }
             }
+            diceResults.Clear();
 
             if (win)
             {
-                animateString("You Win!!!");
+                if (betMode == Bet.doubles)
+                {
+                    payout = bet * 2;
+                }
+                else if (betMode == Bet.notDoubles)
+                {
+                    payout = bet / 2;
+                }
+                else
+                {
+                    payout = bet;
+                }
+                animateString($"You Win {payout.ToString("C")}!!!");
             }
             else
             {
+                payout = (-1) * bet;
                 animateString("You Lose!!!");
             }
+
+            balance += payout;
+            animateString($"Your balance is now {balance.ToString("C")}");
 
         }
 
@@ -212,7 +253,7 @@ namespace Part_5._5_More_Classes
                 foreach (var (die, j) in dice.Select((die, j) => (die, j)))
                 {
                     die.RollDie();
-                    die.DrawFace(j * 13, j * (-7), die.Roll);
+                    die.DrawFace(j * 13, j * (-7));
                 }
                 Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 7);
                 Thread.Sleep(30);
@@ -222,13 +263,9 @@ namespace Part_5._5_More_Classes
 
         static void animateString(string text)
         {
-            foreach (char c in text)
-            {
-                Console.Write(c.ToString());
-                Thread.Sleep(10);
-            }
-            Console.WriteLine();
+            animateString(text, 10);
         }
+
         static void animateString(string text, int speed)
         {
             foreach (char c in text)
