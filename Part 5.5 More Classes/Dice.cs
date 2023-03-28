@@ -9,7 +9,7 @@ namespace Part_5._5_More_Classes
 {
     public class Die
     {
-        private Random _generator;
+        private static Random _generator = new Random();
         private int _roll;
         private int _sides;
         private int[] _loadedNums;
@@ -22,7 +22,7 @@ namespace Part_5._5_More_Classes
                 throw new ArgumentException("Roll must be within die range", "roll");
             }
             _roll = roll;
-            _generator = new Random();
+            //_generator = new Random();
         }
 
         public Die(int sides, int roll, int[] loadedNums)
@@ -33,16 +33,17 @@ namespace Part_5._5_More_Classes
                 throw new ArgumentException("Roll must be within die range", "roll");
             }
             _roll = roll;
-            _generator = new Random();
+            //_generator = new Random();
             _loadedNums = loadedNums;
         }
 
         public int Roll { get { return _roll; } }
+        //public int Sides { get { return _sides; } }
 
-        public int RollDie()
+        public void RollDie()
         {
             _roll = _generator.Next(1, _sides + 1);
-            return _roll;
+            //return _roll;
         }
 
         public int RollWeightedDie()
@@ -69,6 +70,13 @@ namespace Part_5._5_More_Classes
 
         public void DrawFace(int Xoffset, int Yoffset)
         {
+            Console.WriteLine(_roll);
+            RollDie();
+            Console.WriteLine(_roll);
+
+            string padLeft = new string(' ', 5 - (_roll.ToString().Length / 2));
+            string padRight = new string(' ', 5);
+            string face = ("|" + padLeft + _roll + padRight + "|");
             Console.WriteLine();
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop + Yoffset);
             Console.WriteLine(" ___________");
@@ -77,7 +85,7 @@ namespace Part_5._5_More_Classes
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
             Console.WriteLine("|           |");
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
-            Console.WriteLine($"|     {_roll}     |");
+            Console.WriteLine(face);
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);
             Console.WriteLine("|           |");
             Console.SetCursorPosition(Console.CursorLeft + Xoffset, Console.CursorTop);

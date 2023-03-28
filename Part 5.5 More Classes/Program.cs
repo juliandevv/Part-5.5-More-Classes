@@ -31,6 +31,14 @@ namespace Part_5._5_More_Classes
             Console.SetCursorPosition((Console.WindowWidth / 2) - (title.Length / 2), Console.CursorTop - 2);
             animateString(title, 30);
             int balance = 100;
+            List<Die> dice = new List<Die>();
+            dice.Add(new Die(6, 1));
+            dice.Add(new Die(6, 1));
+
+            dice[0].RollDie();
+            dice[1].RollDie();
+            Console.WriteLine($"One {dice[0].Roll} Two {dice[1].Roll}");
+
 
             //main command prompt loop
             bool exit = false;
@@ -38,22 +46,20 @@ namespace Part_5._5_More_Classes
             {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write(">>>");
-                if(Parse(Console.ReadLine(), ref balance) == true)
+                if(Parse(Console.ReadLine(), ref balance, ref dice) == true)
                 {
                     exit = true;
                 }
             }
         }
-        static bool Parse(string commandString, ref int balance)
+        static bool Parse(string commandString, ref int balance, ref List<Die> dice)
         {
             //parse input to commands
             List<string> commandParts = commandString.Split(' ').ToList();
             string command = commandParts.First();
             List<string> arguments = commandParts.Skip(1).ToList();
 
-            List<Die> dice = new List<Die>();
-            dice.Add(new Die(6, 1));
-            dice.Add(new Die(9, 1));
+            
 
             //evaluate command
             switch (command){
@@ -84,9 +90,11 @@ namespace Part_5._5_More_Classes
 
         static void config(List<String> commandParts, ref List<Die> dice)
         {
-            if (commandParts[0] == "configure")
+            //Console.WriteLine("configuring dice...");
+            
+            if (commandParts[1] == "configure")
             {
-                if (int.TryParse(commandParts[1], out int sides))
+                if (int.TryParse(commandParts[2], out int sides))
                 {
                     dice.Clear();
                     dice.Add(new Die(sides, 1));
@@ -98,12 +106,19 @@ namespace Part_5._5_More_Classes
                     Console.WriteLine("Invalid command. Usage: command [options] [parameters]");
                 }
             }
+            else if (commandParts[1] == "reset")
+            {
+                dice.Clear();
+                dice.Add(new Die(6, 1));
+                dice.Add(new Die(6, 1));
+                Console.WriteLine("Succesfully reset dice");
+            }
         }
 
         static void play(List<Die> dice, ref int balance)
         {
             //initialize gameplay vars
-            Random genertaor = new Random();
+            Random generator = new Random();
             Bet betMode = Bet.doubles;
             List<Bet> diceResults = new List<Bet>();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -144,7 +159,7 @@ namespace Part_5._5_More_Classes
                     betMode = Bet.evenSum;
                     break;
                 default:
-                    animateString("\nNot a valid selection1");
+                    animateString("\nDefaulted bet to doubles. If you win, your bet will be doubled.");
                     break;
             }
 
@@ -158,7 +173,7 @@ namespace Part_5._5_More_Classes
             {
                 if (Console.ReadKey().Key == ConsoleKey.Spacebar)
                 {
-                    animateDice(dice, genertaor);
+                    animateDice(dice, generator);
                     break;
                 }
             }
@@ -212,7 +227,7 @@ namespace Part_5._5_More_Classes
             else
             {
                 payout = (-1) * bet;
-                animateString("You Lose!!!");
+                animateString($"You Lose {(payout * -1).ToString("C")}!!!");
             }
 
             balance += payout;
@@ -246,19 +261,25 @@ namespace Part_5._5_More_Classes
 
         static void animateDice(List<Die> dice, Random generator)
         {
+            //Console.WriteLine(dice[0].Roll);
+            //Console.WriteLine(dice[1].Roll);
+            //Console.WriteLine(dice.Count);
+
             List<ConsoleColor> colors = new List<ConsoleColor>() { ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Blue, ConsoleColor.Cyan, ConsoleColor.Magenta};
             for (int i = 0; i < 20; i++)
             {
                 Console.ForegroundColor = colors[generator.Next(0, 5)];
-                foreach (var (die, j) in dice.Select((die, j) => (die, j)))
+                for (int j = 0; j < dice .Count; j++) 
                 {
-                    die.RollDie();
-                    die.DrawFace(j * 13, j * (-7));
+                    dice[j].RollDie();
+                    dice[j].DrawFace(j * 13, j * (-7));
                 }
                 Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 7);
                 Thread.Sleep(30);
             }
             Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop + 8);
+            //Console.WriteLine(dice[0].Roll);
+            //Console.WriteLine(dice[1].Roll);
         }
 
         static void animateString(string text)
