@@ -70,9 +70,9 @@ namespace Part_5._5_More_Classes
 
         public void DrawFace(int Xoffset, int Yoffset)
         {
-            Console.WriteLine(_roll);
-            RollDie();
-            Console.WriteLine(_roll);
+            //Console.WriteLine(_roll);
+            //RollDie();
+            //Console.WriteLine(_roll);
 
             string padLeft = new string(' ', 5 - (_roll.ToString().Length / 2));
             string padRight = new string(' ', 5);
