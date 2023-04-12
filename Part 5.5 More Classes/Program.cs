@@ -35,9 +35,9 @@ namespace Part_5._5_More_Classes
             dice.Add(new Die(6, 1));
             dice.Add(new Die(6, 1));
 
-            dice[0].RollDie();
-            dice[1].RollDie();
-            Console.WriteLine($"One {dice[0].Roll} Two {dice[1].Roll}");
+            //dice[0].RollDie();
+            //dice[1].RollDie();
+            //Console.WriteLine($"One {dice[0].Roll} Two {dice[1].Roll}");
 
 
             //main command prompt loop
